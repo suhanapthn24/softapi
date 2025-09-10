@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "softapi"
+version = "0.2.0"
+description = "Scaffold no-boilerplate FastAPI apps with sane defaults"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [{name="Your Name", email="you@example.com"}]
+dependencies = [
+  "typer>=0.12.0",
+  "jinja2>=3.1.4",
+]
+
+keywords = ["fastapi", "scaffold", "backend", "api", "starter"]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Framework :: FastAPI",
+  "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourname/softapi"
+Repository = "https://github.com/yourname/softapi"
+Issues = "https://github.com/yourname/softapi/issues"
+
+[project.scripts]
+softapi = "softapi.cli:app"

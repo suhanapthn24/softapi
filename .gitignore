@@ -1,0 +1,17 @@
+(td / ".gitignore").write_text(dedent("""
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+# Packaging
+dist/
+build/
+*.egg-info/
+# IDE
+.vscode/
+.idea/
+# Local
+app.db
+data/
+    """).strip()+"\n")
