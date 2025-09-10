@@ -37,6 +37,11 @@ def write_fastapi_basic(
             uvicorn app.main:app --reload
             ```
             Open http://127.0.0.1:8000/docs
+
+            ### Alternative: app factory
+            ```bash
+            uvicorn app.main:create_app --factory --reload
+            ```
             """
         ).strip()
         + "\n"
@@ -59,7 +64,6 @@ def write_fastapi_basic(
         req += [
             "passlib[bcrypt]==1.7.4",
             "PyJWT==2.9.0",
-            # bcrypt wheel exists on Windows/macOS/Linux for 3.8+
         ]
     if db == "postgres":
         req += ["psycopg2-binary==2.9.9"]
@@ -227,6 +231,11 @@ def write_fastapi_basic(
             @router.get("/health")
             def health():
                 return {"status": "ok"}
+
+            @router.get("/__version__")
+            def version():
+                # Lightweight version endpoint for monitoring or UI banners
+                return {"package": "app", "version": "0.1.0"}
             """
         ).strip()
         + "\n"
@@ -250,6 +259,7 @@ def write_fastapi_basic(
 
                 @router.post("/login", response_model=TokenOut)
                 def login(form: OAuth2PasswordRequestForm = Depends()):
+                    # Starter demo (no password check); replace with real user verification
                     return {"access_token": create_access_token(form.username), "token_type": "bearer"}
 
                 @router.get("/me")
@@ -270,12 +280,11 @@ def write_fastapi_basic(
             from typing import List
             from fastapi import APIRouter, Depends, HTTPException
             from sqlalchemy.orm import Session
-            from ..db import get_db, Base, engine
+            from ..db import get_db
             from ..models.item import Item
             from ..schemas.item import ItemCreate, ItemOut
 
             router = APIRouter(prefix="/items", tags=["items"])
-            Base.metadata.create_all(bind=engine)
 
             @router.post("", response_model=ItemOut)
             def create_item(payload: ItemCreate, db: Session = Depends(get_db)):
@@ -329,7 +338,8 @@ def write_fastapi_basic(
                 COPY requirements.txt /app/requirements.txt
                 RUN pip install --no-cache-dir -r /app/requirements.txt
                 COPY app /app/app
-                COPY .env /app/.env
+                # Optionally copy .env if you want in-image defaults (you can override via env_file)
+                # COPY .env /app/.env
                 EXPOSE 8000
                 CMD ["gunicorn","-k","uvicorn.workers.UvicornWorker","-w","2","-b","0.0.0.0:8000","app.main:app"]
                 """
@@ -446,7 +456,7 @@ def write_fastapi_basic(
         )
         (td / "README.md").write_text(readme)
 
-    # --- main.py: built line-by-line to avoid indentation issues ----------------
+    # --- main.py with app factory & startup table creation ----------------------
     includes = ["from .api.routes_health import router as health_router"]
     if include_jwt:
         includes.append("from .api.routes_auth import router as auth_router")
@@ -458,28 +468,46 @@ def write_fastapi_basic(
     routers.append("app.include_router(items_router)")
 
     lines = []
+    lines.append("from typing import Optional, Iterable")
     lines.append("from fastapi import FastAPI")
     lines.append("from fastapi.middleware.cors import CORSMiddleware")
     lines.append("")
     lines.append("from .config import settings")
+    lines.append("from .db import Base, engine")
     lines.extend(includes)
     lines.append("")
-    lines.append('app = FastAPI(title="' + project_name + '", version="0.1.0")')
+    lines.append("def create_app(*, title: str = None, version: str = None, cors_origins: Optional[Iterable[str]] = None) -> FastAPI:")
+    lines.append('    app = FastAPI(title=title or "' + project_name + '", version=version or "0.1.0")')
     lines.append("")
-    lines.append('origins = [o.strip() for o in settings.CORS_ORIGINS.split(",") if o.strip()]')
-    lines.append("app.add_middleware(")
-    lines.append("    CORSMiddleware,")
-    lines.append('    allow_origins=origins or ["*"],')
-    lines.append("    allow_credentials=True,")
-    lines.append('    allow_methods=["*"],')
-    lines.append('    allow_headers=["*"],')
-    lines.append(")")
+    lines.append("    origins = list(cors_origins) if cors_origins else [o.strip() for o in settings.CORS_ORIGINS.split(',') if o.strip()]")
+    lines.append("    app.add_middleware(")
+    lines.append("        CORSMiddleware,")
+    lines.append("        allow_origins=origins or ['*'],")
+    lines.append("        allow_credentials=True,")
+    lines.append("        allow_methods=['*'],")
+    lines.append("        allow_headers=['*'],")
+    lines.append("    )")
     lines.append("")
-    lines.extend(routers)
+    lines.extend(["    " + r for r in routers])
     lines.append("")
-    lines.append('@app.get("/", tags=["root"])')
-    lines.append("def root():")
-    lines.append('    return {"message": "' + project_name + ' starter up!"}')
+    if not include_alembic:
+        # Only auto-create tables in non-Alembic setups
+        lines.append("    @app.on_event('startup')")
+        lines.append("    def _create_tables():")
+        lines.append("        Base.metadata.create_all(bind=engine)")
+        lines.append("")
+    lines.append("    @app.get('/', tags=['root'])")
+    lines.append("    def root():")
+    lines.append('        return {"message": "' + project_name + ' starter up!"}')
+    lines.append("")
+    lines.append("    return app")
+    lines.append("")
+    lines.append("# ASGI app instance (so `uvicorn app.main:app` works)")
+    lines.append("app = create_app()")
+    lines.append("")
+    lines.append("if __name__ == '__main__':")
+    lines.append("    import uvicorn")
+    lines.append("    uvicorn.run(app, host='0.0.0.0', port=8000)")
     lines.append("")
 
     (td / "app" / "main.py").write_text("\n".join(lines))

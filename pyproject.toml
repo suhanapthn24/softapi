@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "softapi"
-version = "0.2.0"
+version = "0.2.3"
 description = "Scaffold no-boilerplate FastAPI apps with sane defaults"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -29,9 +29,9 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourname/softapi"
-Repository = "https://github.com/yourname/softapi"
-Issues = "https://github.com/yourname/softapi/issues"
+Homepage = "https://github.com/suhanapthn24/softapi"
+Repository = "https://github.com/suhanapthn24/softapi"
+Issues = "https://github.com/suhanapthn24/softapi/issues"
 
 [project.scripts]
 softapi = "softapi.cli:app"
