@@ -1,0 +1,40 @@
+Metadata-Version: 2.4
+Name: softapi
+Version: 0.1.0
+Summary: Scaffold no-boilerplate FastAPI apps with sane defaults
+Author-email: Your Name <you@example.com>
+License: MIT
+Project-URL: Homepage, https://github.com/yourname/softapi
+Project-URL: Repository, https://github.com/yourname/softapi
+Project-URL: Issues, https://github.com/yourname/softapi/issues
+Keywords: fastapi,scaffold,backend,api,starter
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Framework :: FastAPI
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: typer>=0.12.0
+Requires-Dist: jinja2>=3.1.4
+Dynamic: license-file
+
+# softapi
+
+**softapi** is a tiny CLI + library that scaffolds **FastAPI** backends with zero boilerplate.  
+It creates a ready-to-run project with health, auth (demo JWT), SQLite (SQLAlchemy), basic CRUD, and CORS.
+
+- Docs: `docs/QUICKSTART.md` — install & generate
+- Deploy: `docs/DEPLOYMENT_GUIDE.md` — Docker or EC2 + Nginx
+- Publish: `docs/PUBLISHING.md` — TestPyPI/PyPI + GitHub Actions
+
+## Install (editable for local dev)
+```bash
+pip install -e .
+softapi --help
+```

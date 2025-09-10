@@ -1,0 +1,13 @@
+LICENSE
+README.md
+pyproject.toml
+softapi/__init__.py
+softapi/cli.py
+softapi.egg-info/PKG-INFO
+softapi.egg-info/SOURCES.txt
+softapi.egg-info/dependency_links.txt
+softapi.egg-info/entry_points.txt
+softapi.egg-info/requires.txt
+softapi.egg-info/top_level.txt
+softapi/scaffold/__init__.py
+softapi/scaffold/fastapi_basic.py
